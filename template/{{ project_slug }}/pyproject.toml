@@ -22,6 +22,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
+  "PyYAML>=6.0",
 {% if include_utils %}
   # Add your shared internal utils dependency here, for example:
   # "your-org-utils>=0.1.0",

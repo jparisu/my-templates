@@ -84,3 +84,27 @@ pytest
 ```
 
 If the template introduces a conflict, resolve it the same way you would resolve a normal git merge conflict and then rerun your validation commands.
+
+
+## Sandbox Workflow
+
+Use [`scripts/template_sandbox.py`](/home/jparisu/projects/devs/my-templates/scripts/template_sandbox.py) when you want a normal rendered project under `.sandbox/` for local implementation or test runs, then sync Python changes back into the Jinja template.
+
+```bash
+# Render the template into .sandbox/my-template-sandbox-library
+python scripts/template_sandbox.py export
+
+# Review Python changes made in the sandbox
+python scripts/template_sandbox.py status --diff
+
+# Import Python changes and new Python files back into template/
+python scripts/template_sandbox.py import
+```
+
+The script renders the sandbox with stable placeholder values:
+
+- project name: `My Template Sandbox Library`
+- project slug: `my-template-sandbox-library`
+- package name: `my_template_sandbox_library`
+
+When importing, it compares the sandbox against a fresh Copier render, detects modified or new `.py` files, and rewrites those concrete sandbox names back to `{{ project_name }}`, `{{ project_slug }}`, and `{{ package_name }}` before updating files under `template/{{ project_slug }}/`.

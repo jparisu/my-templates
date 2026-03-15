@@ -49,6 +49,13 @@ Add user-facing changes to `CHANGELOG.md`.
 - Functions and variables would use `snake_case`.
 - Constants would use `UPPER_SNAKE_CASE`.
 
+#### Tests
+
+- Every class and function should have corresponding tests inside `tests` directory.
+- Test directories must follow the same structure as the `src` directory.
+- Apps, scripts or documentation do not require tests by default.
+- Inside `tests`, a `manual` directory can be used for manual test scripts that require human interaction.
+
 #### Files and directories
 
 - Directories would use gerund `.ing` form.
