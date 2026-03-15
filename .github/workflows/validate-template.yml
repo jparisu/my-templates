@@ -1,0 +1,51 @@
+name: Validate Template
+
+on:
+  # Run the template validation on pull requests before merging changes.
+  pull_request:
+  # Run the same validation on direct pushes to keep the default branch honest.
+  push:
+    branches:
+      - main
+  # Allow maintainers to trigger the workflow manually from the Actions tab.
+  workflow_dispatch:
+
+# Restrict permissions because this workflow only needs repository read access.
+permissions:
+  contents: read
+
+jobs:
+  validate-template:
+    # Use the hosted Ubuntu runner because Copier, Python, and Git are all available there.
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the template repository so the workflow can inspect and render it.
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Install the Python version used by the root template tests.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Install the lightweight tooling needed to validate the root template project.
+      - name: Install validation dependencies
+        run: python -m pip install --upgrade copier pytest
+
+      # Run the root template tests that validate the Copier configuration and docs.
+      - name: Run template tests
+        run: pytest tests/test_template_render.py
+
+      # Render a project from the template to verify the root Copier workflow still executes.
+      - name: Render smoke-test project
+        run: >
+          copier copy --trust --defaults
+          --data project_name=TemplateCheck
+          "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/rendered-template"
+
+      # Assert that the generated project includes the answers file required for `copier update`.
+      - name: Check generated answers file
+        run: test -f "$RUNNER_TEMP/rendered-template/templatecheck/.copier-answers.yml"

@@ -1,0 +1,58 @@
+name: Test Generated Project
+
+on:
+  # Run generated-project checks on pull requests because rendering is the critical template contract.
+  pull_request:
+  # Run generated-project checks on pushes so the default branch always reflects a usable template.
+  push:
+    branches:
+      - main
+  # Allow maintainers to run the full generated-project test path manually.
+  workflow_dispatch:
+
+# Restrict permissions because this workflow only reads repository contents.
+permissions:
+  contents: read
+
+jobs:
+  test-generated-project:
+    # Use Ubuntu because it matches the common GitHub Actions runtime for Python projects.
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the template repository so Copier can render from the current branch.
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Install the Python version used by the generated project's default configuration.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Install the minimum tooling needed to render the project and execute its tests.
+      - name: Install test dependencies
+        run: python -m pip install --upgrade copier pytest
+
+      # Render a project from the template exactly the way template users are instructed to do it.
+      - name: Render generated project
+        run: >
+          copier copy --trust --defaults
+          --data project_name=TemplateCheck
+          "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/generated-project"
+
+      # Parse the generated `pyproject.toml` to catch unresolved template markers or broken metadata.
+      - name: Validate generated pyproject
+        working-directory: ${{ runner.temp }}/generated-project/templatecheck
+        run: python -c "from pathlib import Path; import tomllib; tomllib.loads(Path('pyproject.toml').read_text(encoding='utf-8'))"
+
+      # Compile the generated Python sources to catch unresolved template markers in `.py` files.
+      - name: Compile generated Python sources
+        working-directory: ${{ runner.temp }}/generated-project/templatecheck
+        run: python -m compileall src tests
+
+      # Run the generated project's test suite as the final end-to-end template check.
+      - name: Run generated project tests
+        working-directory: ${{ runner.temp }}/generated-project/templatecheck
+        run: pytest

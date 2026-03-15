@@ -1,46 +1,145 @@
-# 1. Internal Settings
-_subdirectory: template  # Crucial! This tells Copier where the actual code starts.
+# Copier should render files from the dedicated template directory.
+_subdirectory: template
 
-# 2. The Questions (Variables)
+# Copier should store answers in a committed file so generated projects can be updated later.
+_answers_file: .copier-answers.yml
+
+# Copier should strip the `.jinja` suffix from rendered files in generated projects.
+_templates_suffix: .jinja
+
+# Require a Copier release that supports the settings used by this template.
+min_copier_version: "9.0.0"
+
+# Run a post-render task to materialize `.copier-answers.yml` at the project root.
+# This is required because the render root is `template/`, so the root answers template
+# is maintained for documentation while the actual generated file is written here.
+_tasks:
+  - command: |
+      cat > {% if _copier_operation == "copy" %}{{ project_slug }}/{% endif %}.copier-answers.yml <<'EOF'
+      # Copier keeps this file in generated projects to remember the chosen answers.
+      # Commit this file so `copier update` can safely reapply the template later.
+
+      # Record the template source so Copier knows which template to reuse on updates.
+      _src_path: {{ _copier_answers._src_path | to_json }}
+      {% if _copier_answers._commit %}
+      # Record the template revision when the source comes from git so updates stay reproducible.
+      _commit: {{ _copier_answers._commit | to_json }}
+      {% endif %}
+
+      # Persist the human-readable project title that feeds generated metadata and docs.
+      project_name: {{ project_name | to_json }}
+
+      # Persist the repository slug that names the generated project directory and package distribution.
+      project_slug: {{ project_slug | to_json }}
+
+      # Persist the Python import name that becomes the package directory under `src/`.
+      package_name: {{ package_name | to_json }}
+
+      # Persist the minimum supported Python version used across tooling and metadata.
+      python_version: {{ python_version | to_json }}
+
+      # Persist the author name used in project metadata and documentation.
+      author_name: {{ author_name | to_json }}
+
+      # Persist the author email used in project metadata and documentation.
+      author_email: {{ author_email | to_json }}
+
+      # Persist the canonical repository URL used in generated links and package metadata.
+      repo_url: {{ repo_url | to_json }}
+
+      # Persist whether the generated project keeps the shared utils dependency placeholder.
+      include_utils: {{ include_utils | to_json }}
+
+      # Persist whether the generated project exposes the optional CLI entrypoint.
+      include_cli: {{ include_cli | to_json }}
+      EOF
+
+# Explain the generated project features before Copier starts asking questions.
+message_before_copy: |
+  This template generates a Python project with:
+    - src-layout packaging
+    - Ruff, mypy, pytest, coverage, and pre-commit
+    - MkDocs and mkdocstrings documentation
+    - Optional CLI wiring
+    - Optional placeholder for a shared utils dependency
+
+# Explain the immediate next steps after a project has been generated.
+message_after_copy: |
+  Your project has been generated.
+  Next steps:
+    1. Review the generated .copier-answers.yml file and commit it so `copier update` can reuse these answers.
+    2. Create the repository at {{ repo_url }} if it does not exist yet.
+    3. Install the development dependencies and run the checks:
+       python -m pip install -e ".[dev]"
+       pre-commit install
+       pytest
+
+# Explain what Copier will use when updating an existing generated project.
+message_before_update: |
+  Copier will re-render this project using the answers stored in .copier-answers.yml.
+  Because this template uses a post-render task, run Copier with `--trust` and review your local changes before updating.
+
+# Explain how to validate the project after the update has been applied.
+message_after_update: |
+  The update finished.
+  Review the diff, then run your usual validation commands:
+    - make install
+    - make precommit
+    - make test
+
+# Ask for the human-readable project title that appears in documentation and metadata.
 project_name:
   type: str
   help: "The human-readable name of your project"
 
+# Ask for the repository slug that becomes the generated directory and package distribution name.
 project_slug:
   type: str
-  help: "The repository name (kebab-case)"
+  help: "The repository name in kebab-case"
   default: "{{ project_name|lower|replace(' ', '-') }}"
 
+# Ask for the Python import name that becomes the package directory under `src/`.
 package_name:
   type: str
-  help: "The Python import name (snake_case)"
+  help: "The Python package name in snake_case"
   default: "{{ project_slug|replace('-', '_') }}"
 
+# Ask for the baseline Python version used in packaging, tooling, and classifiers.
 python_version:
   type: str
+  help: "The minimum supported Python version"
+  choices:
+    - "3.11"
+    - "3.12"
+    - "3.13"
   default: "3.12"
 
+# Ask for the author name that is injected into project metadata and documentation.
 author_name:
   type: str
   help: "The name of the author of this project"
   default: "jparisu"
 
+# Ask for the author email that is injected into project metadata and documentation.
 author_email:
   type: str
   help: "The email of the author of this project"
   default: "javier.paris.u@gmail.com"
 
+# Ask for the canonical repository URL that is referenced across metadata and docs.
 repo_url:
   type: str
   help: "Canonical Git repository URL for this project"
   default: "https://github.com/{{ author_name }}/{{ project_slug }}"
 
+# Ask whether the generated project should include the placeholder for a shared utils dependency.
 include_utils:
   type: bool
+  help: "Include the shared internal utils library placeholder?"
   default: true
-  help: "Include the shared internal utils library?"
 
+# Ask whether the generated project should expose the CLI entrypoint configured in `pyproject.toml`.
 include_cli:
   type: bool
-  default: true
   help: "Include a CLI interface for the project?"
+  default: true
