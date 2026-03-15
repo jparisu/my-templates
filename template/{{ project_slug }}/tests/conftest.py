@@ -1,5 +1,5 @@
 """
-Pytest configuration file for fgx tests.
+Pytest configuration for generated-project tests.
 """
 
 import sys

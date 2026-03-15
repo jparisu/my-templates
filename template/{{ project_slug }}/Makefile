@@ -1,7 +1,10 @@
-.PHONY: venv install install-current precommit lint format test docs build clean
+.PHONY: venv install install-current ensure-git precommit lint format test docs build clean
 
 VENV ?= .venv
 PYTHON ?= python3
+PRE_COMMIT_ARGS ?= --all-files
+PRE_COMMIT_SKIP ?=
+TEST_ARGS ?= tests -v
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 VENV_PRE_COMMIT := $(VENV)/bin/pre-commit
@@ -17,19 +20,20 @@ venv:
 install: venv
 	$(VENV_PYTHON) -m pip install --upgrade pip
 	$(VENV_PIP) install -e ".[dev]"
-	$(VENV_PRE_COMMIT) install
 
 install-current:
 	python -m pip install --upgrade pip
 	python -m pip install -e ".[dev]"
-	pre-commit install
 
-precommit:
-	$(VENV_PRE_COMMIT) run --all-files
+ensure-git:
+	@if [ ! -d .git ]; then git init -q; fi
+
+precommit: ensure-git
+	SKIP=$(PRE_COMMIT_SKIP) $(VENV_PRE_COMMIT) run $(PRE_COMMIT_ARGS)
 
 lint:
 	$(VENV_RUFF) check src tests
-	$(VENV_RUFF) format --check src tests
+	$(VENV_RUFF) format --diff --check src tests
 	$(VENV_MYPY) src/{{ package_name }}
 
 format:
@@ -37,7 +41,7 @@ format:
 	$(VENV_RUFF) format src tests
 
 test:
-	$(VENV_PYTEST) tests -v
+	$(VENV_PYTEST) $(TEST_ARGS)
 
 docs:
 	$(VENV_MKDOCS) build --strict

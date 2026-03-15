@@ -43,7 +43,7 @@ repos:
         - scipy-stubs>=1.10.0
         - types-setuptools
         - types-PyYAML
-        args: ["--config-file=pyproject.toml", "src/fgx"]
+        args: ["--config-file=pyproject.toml", "src/{{ package_name }}"]
         exclude: (^tests/)|(^\.dev/)|(^docs/)
 
 
