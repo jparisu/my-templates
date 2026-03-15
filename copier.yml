@@ -15,7 +15,7 @@ _exclude:
   - "{{ project_slug }}/.github/workflows/*.yml"
 
 # Require a Copier release that supports the settings used by this template.
-min_copier_version: "9.0.0"
+_min_copier_version: "9.0.0"
 
 # Run post-render tasks because the render root is `template/`, all files are
 # rendered in place, and generated projects still need a normalized README file
@@ -87,14 +87,15 @@ _tasks:
 # Explain the generated project features before Copier starts asking questions.
 message_before_copy: |
   This template generates a Python project with:
-    - src-layout packaging
+    - src/apps/tests layout packaging
     - Ruff, mypy, pytest, coverage, and pre-commit
+    - GitHub Actions workflows for CI and CD
     - MkDocs and mkdocstrings documentation
     - Optional CLI wiring
     - Optional placeholder for a shared utils dependency
 
 # Explain the immediate next steps after a project has been generated.
-message_after_copy: |
+_message_after_copy: |
   Your project has been generated.
   Next steps:
     1. Review the generated .copier-answers.yml file and commit it so `copier update` can reuse these answers.
@@ -105,12 +106,12 @@ message_after_copy: |
        pytest
 
 # Explain what Copier will use when updating an existing generated project.
-message_before_update: |
+_message_before_update: |
   Copier will re-render this project using the answers stored in .copier-answers.yml.
   Because this template uses a post-render task, run Copier with `--trust` and review your local changes before updating.
 
 # Explain how to validate the project after the update has been applied.
-message_after_update: |
+_message_after_update: |
   The update finished.
   Review the diff, then run your usual validation commands:
     - make install

@@ -45,5 +45,7 @@ docs:
 build:
 	$(VENV_BUILD)
 
+test-all: lint format test docs
+
 clean:
 	rm -rf build dist .coverage .pytest_cache .mypy_cache .ruff_cache site

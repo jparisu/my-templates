@@ -33,7 +33,7 @@ Use a git-backed source when you want future `copier update` runs to track templ
 
 ```bash
 # Generate a new project from the local checkout of this template repository.
-copier copy git+https://github.com/jparisu/my-templates.git ./my-new-project
+copier copy --trust --vcs-ref main git+https://github.com/jparisu/my-templates.git ./my-new-project
 
 # Move into the generated project directory.
 cd ./my-new-project
