@@ -1,0 +1,109 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "{{ project_slug }}"
+version = "0.1.0"
+description = "{{ project_name }}"
+readme = "README.md"
+requires-python = ">={{ python_version }}"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "{{ author_name }}", email = "{{ author_email }}" },
+]
+keywords = []
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: {{ python_version }}",
+  "Typing :: Typed",
+]
+dependencies = [
+{% if include_utils %}
+  # Add your shared internal utils dependency here, for example:
+  # "your-org-utils>=0.1.0",
+{% endif %}
+]
+
+[project.urls]
+Homepage = "{{ repo_url }}"
+Repository = "{{ repo_url }}"
+Issues = "{{ repo_url }}/issues"
+
+{% if include_cli %}
+[project.scripts]
+{{ project_slug }} = "{{ package_name }}.cli:main"
+{% endif %}
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2.2",
+  "coverage[toml]>=7.8.0",
+  "mkdocs>=1.6.0",
+  "mkdocs-include-markdown-plugin>=7.0.0",
+  "mkdocs-material>=9.6.0",
+  "mkdocstrings[python]>=0.30.0",
+  "mypy>=1.15.0",
+  "pre-commit>=4.2.0",
+  "pytest>=8.3.0",
+  "pytest-cov>=6.1.0",
+  "ruff>=0.11.0",
+  "twine>=6.1.0",
+]
+docs = [
+  "mkdocs>=1.6.0",
+  "mkdocs-include-markdown-plugin>=7.0.0",
+  "mkdocs-material>=9.6.0",
+  "mkdocstrings[python]>=0.30.0",
+]
+lint = [
+  "mypy>=1.15.0",
+  "ruff>=0.11.0",
+]
+test = [
+  "pytest>=8.3.0",
+  "pytest-cov>=6.1.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/{{ package_name }}"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py{{ python_version | replace('.', '') }}"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "{{ python_version }}"
+strict = true
+warn_unused_configs = true
+mypy_path = "src"
+packages = ["{{ package_name }}"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["{{ package_name }}"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false

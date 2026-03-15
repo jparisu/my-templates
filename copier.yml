@@ -1,0 +1,46 @@
+# 1. Internal Settings
+_subdirectory: template  # Crucial! This tells Copier where the actual code starts.
+
+# 2. The Questions (Variables)
+project_name:
+  type: str
+  help: "The human-readable name of your project"
+
+project_slug:
+  type: str
+  help: "The repository name (kebab-case)"
+  default: "{{ project_name|lower|replace(' ', '-') }}"
+
+package_name:
+  type: str
+  help: "The Python import name (snake_case)"
+  default: "{{ project_slug|replace('-', '_') }}"
+
+python_version:
+  type: str
+  default: "3.12"
+
+author_name:
+  type: str
+  help: "The name of the author of this project"
+  default: "jparisu"
+
+author_email:
+  type: str
+  help: "The email of the author of this project"
+  default: "javier.paris.u@gmail.com"
+
+repo_url:
+  type: str
+  help: "Canonical Git repository URL for this project"
+  default: "https://github.com/{{ author_name }}/{{ project_slug }}"
+
+include_utils:
+  type: bool
+  default: true
+  help: "Include the shared internal utils library?"
+
+include_cli:
+  type: bool
+  default: true
+  help: "Include a CLI interface for the project?"

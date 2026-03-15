@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+
+message: "If you use this software, please cite it as below."
+
+authors:
+  - family-names: "Paris"
+    given-names: "Javier"
+    orcid: "https://orcid.org/0000-0001-6489-0530"
+
+title: "{{ project_name }}"
+
+version: 0.1.0
+
+url: "{{ repo_url }}"
+
+repository-code: "{{ repo_url }}"
+
+license: Apache-2.0
+
+# TODO: future repos
+# date-released: 2026-03-15
+# abstract: "{{ project_name }} is a Python project generated from this Copier template."
+# keywords:
