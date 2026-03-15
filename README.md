@@ -15,7 +15,7 @@
 
 ## Template Files
 
-- [`copier.yml`](/home/jparisu/projects/devs/my-templates/copier.yml). This is the main Copier configuration, including questions, defaults, and user-facing copy/update messages.
+- [`copier.yml`](/home/jparisu/projects/devs/my-templates/copier.yml). This is the main Copier configuration, including questions, defaults, user-facing copy/update messages, and the post-render tasks required by the current layout.
 - [`{{ _copier_conf.answers_file }}.jinja`](/home/jparisu/projects/devs/my-templates/{{ _copier_conf.answers_file }}.jinja). This documents the intended `.copier-answers.yml` contents that the post-render task writes into generated projects.
 - [`template/`](/home/jparisu/projects/devs/my-templates/template). This contains the generated project skeleton and should stay focused on rendered project files.
 
@@ -23,7 +23,7 @@
 ## Requirements
 
 - Copier 9 or newer. The root configuration uses current Copier settings such as `_subdirectory`, `_answers_file`, and `_templates_suffix`.
-- Trusted task execution. This template writes `.copier-answers.yml` with a documented post-render task because the render root is `template/`.
+- Trusted task execution. This template uses post-render tasks to restore the generated project's GitHub workflow files, rename `README.md.jinja`, and write `.copier-answers.yml` because the render root is `template/` and most template files are rendered in place.
 - Git access to this repository. Updating generated projects works best when they were created from a git-backed template source.
 
 

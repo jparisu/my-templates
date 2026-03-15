@@ -35,7 +35,7 @@ Issues = "{{ repo_url }}/issues"
 
 {% if include_cli %}
 [project.scripts]
-{{ project_slug }} = "{{ package_name }}.cli:main"
+{{ project_slug }} = "apps.{{ package_name }}_cli:main"
 {% endif %}
 
 [project.optional-dependencies]
@@ -69,7 +69,7 @@ test = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/{{ package_name }}"]
+packages = ["src/{{ package_name }}", "apps"]
 
 [tool.ruff]
 line-length = 100

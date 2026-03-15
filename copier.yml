@@ -4,16 +4,46 @@ _subdirectory: template
 # Copier should store answers in a committed file so generated projects can be updated later.
 _answers_file: .copier-answers.yml
 
-# Copier should strip the `.jinja` suffix from rendered files in generated projects.
-_templates_suffix: .jinja
+# Copier should render every file in `template/` because most generated files
+# contain inline Jinja expressions without a dedicated `.jinja` suffix.
+_templates_suffix: ""
+
+# Exclude generated-project workflow files from direct Jinja rendering because
+# they contain GitHub `${{ ... }}` expressions that would otherwise collide with
+# Copier's own Jinja engine.
+_exclude:
+  - "{{ project_slug }}/.github/workflows/*.yml"
 
 # Require a Copier release that supports the settings used by this template.
 min_copier_version: "9.0.0"
 
-# Run a post-render task to materialize `.copier-answers.yml` at the project root.
-# This is required because the render root is `template/`, so the root answers template
-# is maintained for documentation while the actual generated file is written here.
+# Run post-render tasks because the render root is `template/`, all files are
+# rendered in place, and generated projects still need a normalized README file
+# plus a committed `.copier-answers.yml`.
 _tasks:
+  - command: |
+      set -e
+      mkdir -p {% if _copier_operation == "copy" %}{{ project_slug }}/{% endif %}.github/workflows
+      cp "{{ _copier_conf.src_path }}/template/{% raw %}{{ project_slug }}{% endraw %}/.github/workflows/"*.yml "{% if _copier_operation == "copy" %}{{ project_slug }}/{% endif %}.github/workflows/"
+      python - <<'PY'
+      from pathlib import Path
+
+      root = Path("{% if _copier_operation == 'copy' %}{{ project_slug }}/{% endif %}.github/workflows")
+      replacements = {
+          "{{ '{{ python_version }}' }}": {{ python_version | to_json }},
+          "{{ '{{ package_name }}' }}": {{ package_name | to_json }},
+      }
+
+      for workflow_path in root.glob("*.yml"):
+          content = workflow_path.read_text(encoding="utf-8")
+          for old, new in replacements.items():
+              content = content.replace(old, new)
+          workflow_path.write_text(content, encoding="utf-8")
+      PY
+  - command: |
+      if [ -f {% if _copier_operation == "copy" %}{{ project_slug }}/{% endif %}README.md.jinja ]; then
+        mv {% if _copier_operation == "copy" %}{{ project_slug }}/{% endif %}README.md.jinja {% if _copier_operation == "copy" %}{{ project_slug }}/{% endif %}README.md
+      fi
   - command: |
       cat > {% if _copier_operation == "copy" %}{{ project_slug }}/{% endif %}.copier-answers.yml <<'EOF'
       # Copier keeps this file in generated projects to remember the chosen answers.

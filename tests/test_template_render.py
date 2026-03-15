@@ -13,9 +13,12 @@ def test_copier_config_documents_core_settings() -> None:
 
     assert "_subdirectory: template" in content
     assert "_answers_file: .copier-answers.yml" in content
-    assert "_templates_suffix: .jinja" in content
+    assert '_templates_suffix: ""' in content
+    assert "_exclude:" in content
     assert 'min_copier_version: "9.0.0"' in content
     assert "_tasks:" in content
+    assert ".github/workflows/*.yml" in content
+    assert "README.md.jinja" in content
     assert "message_before_copy" in content
     assert "message_before_update" in content
 
@@ -38,3 +41,15 @@ def test_readme_documents_copy_and_update_commands() -> None:
     assert "copier update" in content
     assert "--trust" in content
     assert ".copier-answers.yml" in content
+
+
+def test_template_includes_default_cli_module() -> None:
+    pyproject = read("template/{{ project_slug }}/pyproject.toml")
+    cli_module = read("template/{{ project_slug }}/apps/{{ package_name }}_cli.py")
+    apps_package = read("template/{{ project_slug }}/apps/__init__.py")
+
+    assert '{{ project_slug }} = "apps.{{ package_name }}_cli:main"' in pyproject
+    assert 'packages = ["src/{{ package_name }}", "apps"]' in pyproject
+    assert "def main() -> int:" in cli_module
+    assert "argparse.ArgumentParser" in cli_module
+    assert "Application entrypoints" in apps_package
