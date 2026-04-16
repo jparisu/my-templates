@@ -22,6 +22,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
+  "PyYAML>=6.0",
 {% if include_utils %}
   # Add your shared internal utils dependency here, for example:
   # "your-org-utils>=0.1.0",
@@ -35,7 +36,7 @@ Issues = "{{ repo_url }}/issues"
 
 {% if include_cli %}
 [project.scripts]
-{{ project_slug }} = "{{ package_name }}.cli:main"
+{{ project_slug }} = "apps.{{ package_name }}_cli:main"
 {% endif %}
 
 [project.optional-dependencies]
@@ -69,7 +70,7 @@ test = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/{{ package_name }}"]
+packages = ["src/{{ package_name }}", "apps"]
 
 [tool.ruff]
 line-length = 100
@@ -83,6 +84,10 @@ select = [
   "I",
   "UP",
   "B",
+]
+ignore = [
+  "UP046",
+  "UP047",
 ]
 
 [tool.ruff.format]

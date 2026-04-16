@@ -1,0 +1,36 @@
+# Copier keeps this file in generated projects to remember the chosen answers.
+# Commit this file so `copier update` can safely reapply the template later.
+
+# Record the template source so Copier knows which template to reuse on updates.
+_src_path: {{ _copier_answers._src_path | to_json }}
+{% if _copier_answers._commit %}
+# Record the template revision when the source comes from git so updates stay reproducible.
+_commit: {{ _copier_answers._commit | to_json }}
+{% endif %}
+
+# Persist the human-readable project title that feeds generated metadata and docs.
+project_name: {{ project_name | to_json }}
+
+# Persist the repository slug that names the generated project directory and package distribution.
+project_slug: {{ project_slug | to_json }}
+
+# Persist the Python import name that becomes the package directory under `src/`.
+package_name: {{ package_name | to_json }}
+
+# Persist the minimum supported Python version used across tooling and metadata.
+python_version: {{ python_version | to_json }}
+
+# Persist the author name used in project metadata and documentation.
+author_name: {{ author_name | to_json }}
+
+# Persist the author email used in project metadata and documentation.
+author_email: {{ author_email | to_json }}
+
+# Persist the canonical repository URL used in generated links and package metadata.
+repo_url: {{ repo_url | to_json }}
+
+# Persist whether the generated project keeps the shared utils dependency placeholder.
+include_utils: {{ include_utils | to_json }}
+
+# Persist whether the generated project exposes the optional CLI entrypoint.
+include_cli: {{ include_cli | to_json }}
