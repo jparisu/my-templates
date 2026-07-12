@@ -1,4 +1,31 @@
 .sandbox/
 .template-validation/
+
+# Python bytecode / caches
 __pycache__/
-tests/__pycache__/
+*.py[cod]
+*$py.class
+
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+.cache/
+
+# Linting / type-checking caches
+.ruff_cache/
+.mypy_cache/
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Agents
+.claude/
+.agents/
